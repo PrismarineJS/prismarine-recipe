@@ -76,3 +76,9 @@ This is what it looks like for the chest recipe:
   recipeItem
 ]
 ```
+
+## History
+
+### 0.0.0
+
+* Import from mineflayer
