@@ -1,0 +1,29 @@
+{
+  "name": "prismarine-recipe",
+  "version": "0.0.0",
+  "description": "Represent minecraft recipes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/PrismarineJS/prismarine-recipe.git"
+  },
+  "peerDependencies": {
+    "minecraft-data":"0.x"
+  },
+  "devDependencies": {
+    "minecraft-data":"0.x"
+  },
+  "keywords": [
+    "minecraft",
+    "recipe"
+  ],
+  "author": "Romain Beaumont <romain.rom1@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PrismarineJS/prismarine-recipe/issues"
+  },
+  "homepage": "https://github.com/PrismarineJS/prismarine-recipe#readme"
+}
