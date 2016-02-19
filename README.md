@@ -79,6 +79,10 @@ This is what it looks like for the chest recipe:
 
 ## History
 
+### 1.0.0
+
+* bump dependencies
+
 ### 0.0.0
 
 * Import from mineflayer
