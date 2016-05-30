@@ -79,6 +79,10 @@ This is what it looks like for the chest recipe:
 
 ## History
 
+### 1.0.1
+
+* bump mcdata
+
 ### 1.0.0
 
 * bump dependencies
