@@ -5,7 +5,7 @@ Represent minecraft recipes
 ## Usage
 
 ```js
-var Recipe=require("prismarine-recipe")("1.8").Recipe;
+const Recipe=require("prismarine-recipe")("1.8").Recipe;
 
 console.log(JSON.stringify(Recipe.find(5)[0],null,2)); // recipes for wood
 ```
