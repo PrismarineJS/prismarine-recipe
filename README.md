@@ -1,6 +1,6 @@
 # prismarine-recipe
 
-[![Build Status](https://circleci.com/gh/PrismarineJS/prismarine-recipe/tree/master.svg?style=shield)](https://circleci.com/gh/PrismarineJS/prismarine-recipe/tree/master)
+[![Build Status](https://github.com/PrismarineJS/prismarine-recipe/workflows/CI/badge.svg)](https://github.com/PrismarineJS/prismarine-recipe/actions?query=workflow%3A%22CI%22)
 
 Represent minecraft recipes
 
