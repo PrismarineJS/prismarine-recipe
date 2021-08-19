@@ -7,9 +7,9 @@ Represent minecraft recipes
 ## Usage
 
 ```js
-const Recipe=require("prismarine-recipe")("1.8").Recipe;
+const Recipe = require("prismarine-recipe")("1.8").Recipe;
 
-console.log(JSON.stringify(Recipe.find(5)[0],null,2)); // recipes for wood
+console.log(JSON.stringify(Recipe.find(5)[0], null, 2)); // recipes for wood
 ```
 
 ## API
@@ -20,12 +20,12 @@ console.log(JSON.stringify(Recipe.find(5)[0],null,2)); // recipes for wood
 
 Returns a list of matching `Recipe` instances.
 
- * `itemType` - numerical id
+ * `itemType` - numerical id or string (bedrock edition)
  * `metadata` - metadata to match. `null` means match anything.
 
 #### recipe.result
 
-The output item. It's a recipeItem :
+The output item. It's a recipeItem or an array of recipeItems (bedrock) :
 ```js
 {
   id:45,
@@ -63,7 +63,7 @@ List of shape-independent ingredients. Looks like this:
 
 #### recipe.requiresTable
 
-Boolean.
+Boolean, if crafting recipe needs square greater than 2x2
 
 #### recipe.delta
 
@@ -78,6 +78,9 @@ This is what it looks like for the chest recipe:
   recipeItem
 ]
 ```
+
+## 1.2.0
+* Add bedrock edition support
 
 ## History
 

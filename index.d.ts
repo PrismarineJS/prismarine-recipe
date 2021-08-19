@@ -8,7 +8,18 @@ declare class Recipe {
     delta: Array<RecipeItem>;
     requiresTable: boolean;
 
-    static find(itemType: number, metadata: number | null): Array<Recipe>;
+    /**
+     * Returns a list of recipes that can craft the given item.
+     * @param {string|Item} itemOrBlock Name or Item object
+     * @param {number} metadata Optional metadata for the item
+     * @return {Recipe[]} A list of recipes that can craft the given item
+     **/
+    static find(itemType: number | object, metadata: number | null): Array<Recipe>;
+
+    /**
+     * Gets a list of crafting recipes that can be crafted with the given input (bedrock)
+     */
+    static getCraftable(withItems: Item[]): Array<Recipe>;
 }
 declare class RecipeItem {
     constructor(id: number, metadata: number | null, count: number);
