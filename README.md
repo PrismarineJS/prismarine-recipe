@@ -81,6 +81,10 @@ This is what it looks like for the chest recipe:
 
 ## History
 
+### 1.2.0
+
+* Bump mcdata
+
 ### 1.1.0
 
 * typescript definitions (thanks @IdanHo)
