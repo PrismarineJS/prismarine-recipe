@@ -1,4 +1,4 @@
-declare class Recipe {
+export declare class Recipe {
     constructor(recipeEnumItem: object);
 
     result: RecipeItem;
