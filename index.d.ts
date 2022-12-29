@@ -1,4 +1,4 @@
-declare class Recipe {
+export declare class Recipe {
     constructor(recipeEnumItem: object);
 
     result: RecipeItem;
@@ -10,7 +10,7 @@ declare class Recipe {
 
     static find(itemType: number, metadata: number | null): Array<Recipe>;
 }
-declare class RecipeItem {
+export declare class RecipeItem {
     constructor(id: number, metadata: number | null, count: number);
 
     id: number;
