@@ -48,7 +48,7 @@ Looks like this:
 
 #### recipe.outShape
 
-Looks the same as `inShape`. Only relevant for cake.
+Looks the same as `inShape`. Only relevant for cake, banner, etc.
 
 #### recipe.ingredients
 
