@@ -5,7 +5,7 @@
   "main": "index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "test": "npm run lint",
+    "test": "mocha test/ && npm run lint",
     "lint": "standard",
     "fix": "standard --fix"
   },
@@ -17,6 +17,7 @@
     "prismarine-registry": "^1.4.0"
   },
   "devDependencies": {
+    "mocha": "^10.2.0",
     "standard": "^17.0.0"
   },
   "keywords": [
