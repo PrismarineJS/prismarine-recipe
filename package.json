@@ -17,7 +17,7 @@
     "prismarine-registry": "^1.4.0"
   },
   "devDependencies": {
-    "mocha": "^10.2.0",
+    "mocha": "^11.7.5",
     "standard": "^17.0.0"
   },
   "keywords": [
