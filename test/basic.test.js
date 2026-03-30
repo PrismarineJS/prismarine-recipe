@@ -110,4 +110,125 @@ describe('Recipe', function () {
       assert.strictEqual(recipe.inShape[1][0].count, 1)
     })
   })
+
+  describe('wildcard metadata normalization', function () {
+    it('should treat metadata >= 32767 as wildcard (null)', function () {
+      const registry = {
+        items: {},
+        recipes: {
+          1: [{
+            result: { id: 1, count: 1 },
+            inShape: [[{ id: 17, metadata: 32767 }]]
+          }]
+        }
+      }
+      const Recipe = recipeLoader(registry)
+      const recipe = Recipe.find(1)[0]
+
+      assert.strictEqual(recipe.inShape[0][0].metadata, null)
+      const ingredientDelta = recipe.delta.find(d => d.id === 17)
+      assert.strictEqual(ingredientDelta.metadata, null)
+    })
+
+    it('should treat metadata as wildcard when it does not match any item variation', function () {
+      const registry = {
+        items: {
+          17: {
+            id: 17,
+            name: 'log',
+            variations: [
+              { metadata: 0, displayName: 'Oak Wood' },
+              { metadata: 1, displayName: 'Spruce Wood' },
+              { metadata: 2, displayName: 'Birch Wood' },
+              { metadata: 3, displayName: 'Jungle Wood' }
+            ]
+          }
+        },
+        recipes: {
+          5: [{
+            result: { id: 5, count: 4, metadata: 0 },
+            inShape: [[{ id: 17, metadata: 12 }]]
+          }]
+        }
+      }
+      const Recipe = recipeLoader(registry)
+      const recipe = Recipe.find(5)[0]
+
+      // metadata 12 is not a valid item variation for log, so it should be null
+      assert.strictEqual(recipe.inShape[0][0].metadata, null)
+      const logDelta = recipe.delta.find(d => d.id === 17)
+      assert.strictEqual(logDelta.metadata, null)
+    })
+
+    it('should preserve metadata when it matches a valid item variation', function () {
+      const registry = {
+        items: {
+          35: {
+            id: 35,
+            name: 'wool',
+            variations: [
+              { metadata: 0, displayName: 'White Wool' },
+              { metadata: 1, displayName: 'Orange Wool' },
+              { metadata: 2, displayName: 'Magenta Wool' }
+            ]
+          }
+        },
+        recipes: {
+          1: [{
+            result: { id: 1, count: 1 },
+            inShape: [[{ id: 35, metadata: 1 }]]
+          }]
+        }
+      }
+      const Recipe = recipeLoader(registry)
+      const recipe = Recipe.find(1)[0]
+
+      // metadata 1 is a valid variation for wool, so it should be preserved
+      assert.strictEqual(recipe.inShape[0][0].metadata, 1)
+    })
+
+    it('should normalize metadata in ingredients too', function () {
+      const registry = {
+        items: {
+          17: {
+            id: 17,
+            name: 'log',
+            variations: [
+              { metadata: 0, displayName: 'Oak Wood' },
+              { metadata: 1, displayName: 'Spruce Wood' }
+            ]
+          }
+        },
+        recipes: {
+          5: [{
+            result: { id: 5, count: 4 },
+            ingredients: [{ id: 17, metadata: 12 }]
+          }]
+        }
+      }
+      const Recipe = recipeLoader(registry)
+      const recipe = Recipe.find(5)[0]
+
+      assert.strictEqual(recipe.ingredients[0].metadata, null)
+    })
+
+    it('should preserve metadata when item has no variations', function () {
+      const registry = {
+        items: {
+          10: { id: 10, name: 'something' }
+        },
+        recipes: {
+          1: [{
+            result: { id: 1, count: 1 },
+            inShape: [[{ id: 10, metadata: 5 }]]
+          }]
+        }
+      }
+      const Recipe = recipeLoader(registry)
+      const recipe = Recipe.find(1)[0]
+
+      // No variations data, so metadata should be preserved as-is
+      assert.strictEqual(recipe.inShape[0][0].metadata, 5)
+    })
+  })
 })
