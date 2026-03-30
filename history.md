@@ -1,5 +1,8 @@
 # History
 
+## 1.5.0
+* [Fix: treat recipe ingredient metadata as wildcard when not matching any item variation (#32)](https://github.com/PrismarineJS/prismarine-recipe/commit/55d72615901766253b271774cbbc3e996df6b032) (thanks @rom1504)
+
 ## 1.4.0
 * [Update CI to Node 24 (#30)](https://github.com/PrismarineJS/prismarine-recipe/commit/983c83bfcee8b758420bdee79db9b4d5064ad749) (thanks @rom1504)
 * [fix: incorrect metadata and incorrect count updates (#27)](https://github.com/PrismarineJS/prismarine-recipe/commit/87c79969a0109e85fecb3c909b4199b650f93080) (thanks @WhoTho)
