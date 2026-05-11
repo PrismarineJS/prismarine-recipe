@@ -12,6 +12,14 @@ const Recipe=require("prismarine-recipe")("1.8").Recipe;
 console.log(JSON.stringify(Recipe.find(5)[0],null,2)); // recipes for wood
 ```
 
+Bedrock recipe data can also be queried by item name:
+
+```js
+const Recipe=require("prismarine-recipe")("bedrock_1.21.80").Recipe;
+
+console.log(JSON.stringify(Recipe.find("cake")[0],null,2));
+```
+
 ## API
 
 ### Recipe
@@ -20,17 +28,50 @@ console.log(JSON.stringify(Recipe.find(5)[0],null,2)); // recipes for wood
 
 Returns a list of matching `Recipe` instances.
 
- * `itemType` - numerical id
+ * `itemType` - numerical id, or an item name for registries with named items
  * `metadata` - metadata to match. `null` means match anything.
 
 #### recipe.result
 
-The output item. It's a recipeItem :
+The primary output item. It's a recipeItem :
 ```js
 {
   id:45,
   metadata:3,
   count:1
+}
+```
+
+#### recipe.edition
+
+Either `java` or `bedrock`. This is the discriminant for the version-agnostic recipe format and can be used to narrow the TypeScript `Recipe` union.
+
+#### recipe.results
+
+All output items. This includes secondary outputs in Bedrock recipes, such as empty buckets returned by the cake recipe.
+
+#### recipe.type
+
+The recipe station/type when the registry exposes one, for example `crafting_table`, `stonecutter`, or `furnace`.
+
+#### recipe.name
+
+The recipe identifier when the registry exposes one.
+
+## TypeScript
+
+The package exposes a version-agnostic `Recipe` union, plus `JavaRecipe` and `BedrockRecipe` for edition-specific usage. Literal version strings infer the specific recipe type:
+
+```ts
+import recipeLoader, { BedrockRecipe, JavaRecipe, Recipe } from 'prismarine-recipe'
+
+const javaRecipe: JavaRecipe = recipeLoader('1.21.4').Recipe.find(5)[0]
+const bedrockRecipe: BedrockRecipe = recipeLoader('bedrock_1.21.80').Recipe.find('cake')[0]
+
+function handleRecipe (recipe: Recipe) {
+  if (recipe.edition === 'bedrock') {
+    console.log(recipe.type)
+  }
 }
 ```
 
