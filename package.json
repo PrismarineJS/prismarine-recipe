@@ -16,6 +16,9 @@
   "peerDependencies": {
     "prismarine-registry": "^1.4.0"
   },
+  "dependencies": {
+    "minecraft-data": "^3.70.0"
+  },
   "devDependencies": {
     "mocha": "^11.7.5",
     "standard": "^17.0.0"

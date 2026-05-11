@@ -33,6 +33,13 @@ describe('RecipeItem', function () {
       assert.strictEqual(item.count, 1)
     })
 
+    it('should handle array input', function () {
+      const item = RecipeItem.fromEnum([5, 2])
+      assert.strictEqual(item.id, 5)
+      assert.strictEqual(item.metadata, 2)
+      assert.strictEqual(item.count, 1)
+    })
+
     it('should handle null input', function () {
       const item = RecipeItem.fromEnum(null)
       assert.strictEqual(item.id, -1)
@@ -44,10 +51,52 @@ describe('RecipeItem', function () {
       const item = RecipeItem.fromEnum({ id: 1, metadata: 2, count: 4 })
       assert.strictEqual(item.count, 4)
     })
+
+    it('should preserve item name when provided', function () {
+      const item = RecipeItem.fromEnum({ name: 'oak_planks', count: 4 })
+      assert.strictEqual(item.name, 'oak_planks')
+      assert.strictEqual(item.count, 4)
+    })
   })
 })
 
-describe('Recipe', function () {
+describe('Recipe agnostic format', function () {
+  it('should isolate state between loaded registries', function () {
+    const JavaRecipe = recipeLoader({
+      recipes: {
+        1: [{
+          result: { id: 1, count: 1 },
+          ingredients: [2]
+        }]
+      }
+    })
+    const BedrockRecipe = recipeLoader({
+      type: 'bedrock',
+      items: {
+        3: { id: 3, name: 'cake' },
+        4: { id: 4, name: 'sugar' }
+      },
+      itemsByName: {
+        cake: { id: 3, name: 'cake' },
+        sugar: { id: 4, name: 'sugar' }
+      },
+      recipes: {
+        0: {
+          type: 'crafting_table_shapeless',
+          name: 'cake_recipe',
+          ingredients: [{ name: 'sugar', count: 1 }],
+          input: [[1]],
+          output: [{ name: 'cake', count: 1 }]
+        }
+      }
+    })
+
+    assert.strictEqual(JavaRecipe.find(1)[0].edition, 'java')
+    assert.strictEqual(BedrockRecipe.find('cake')[0].edition, 'bedrock')
+    assert.strictEqual(JavaRecipe.find(1)[0].result.id, 1)
+    assert.strictEqual(BedrockRecipe.find('cake')[0].result.id, 3)
+  })
+
   describe('computeDelta mutation', function () {
     it('should not mutate ingredient counts after recipe creation', function () {
       const registry = {
@@ -61,11 +110,9 @@ describe('Recipe', function () {
       const Recipe = recipeLoader(registry)
       const recipe = Recipe.find(1)[0]
 
-      // Ingredients should have count of -1 (consumed)
       assert.strictEqual(recipe.ingredients[0].count, -1)
       assert.strictEqual(recipe.ingredients[1].count, -1)
 
-      // The delta should also reflect -1 for ingredients
       const ingredientDeltas = recipe.delta.filter(d => d.id === 2 || d.id === 3)
       for (const d of ingredientDeltas) {
         assert.strictEqual(d.count, -1)
@@ -84,12 +131,8 @@ describe('Recipe', function () {
       const Recipe = recipeLoader(registry)
       const recipe = Recipe.find(1)[0]
 
-      // Result count should remain as originally set
       assert.strictEqual(recipe.result.count, 2)
-
-      // Delta for the result should also be 2 (produced)
-      const resultDelta = recipe.delta.find(d => d.id === 1)
-      assert.strictEqual(resultDelta.count, 2)
+      assert.strictEqual(recipe.delta.find(d => d.id === 1).count, 2)
     })
 
     it('should not mutate inShape items after recipe creation', function () {
@@ -104,10 +147,24 @@ describe('Recipe', function () {
       const Recipe = recipeLoader(registry)
       const recipe = Recipe.find(4)[0]
 
-      // inShape items should not have their counts modified by computeDelta
       assert.strictEqual(recipe.inShape[0][0].count, 1)
       assert.strictEqual(recipe.inShape[0][1].count, 1)
       assert.strictEqual(recipe.inShape[1][0].count, 1)
+    })
+
+    it('should use outShape when applying output shape delta', function () {
+      const registry = {
+        recipes: {
+          1: [{
+            result: { id: 1, count: 1 },
+            outShape: [[2, 2]]
+          }]
+        }
+      }
+      const Recipe = recipeLoader(registry)
+      const recipe = Recipe.find(1)[0]
+
+      assert.strictEqual(recipe.delta.find(d => d.id === 2).count, 2)
     })
   })
 
@@ -126,8 +183,7 @@ describe('Recipe', function () {
       const recipe = Recipe.find(1)[0]
 
       assert.strictEqual(recipe.inShape[0][0].metadata, null)
-      const ingredientDelta = recipe.delta.find(d => d.id === 17)
-      assert.strictEqual(ingredientDelta.metadata, null)
+      assert.strictEqual(recipe.delta.find(d => d.id === 17).metadata, null)
     })
 
     it('should treat metadata as wildcard when it does not match any item variation', function () {
@@ -138,9 +194,7 @@ describe('Recipe', function () {
             name: 'log',
             variations: [
               { metadata: 0, displayName: 'Oak Wood' },
-              { metadata: 1, displayName: 'Spruce Wood' },
-              { metadata: 2, displayName: 'Birch Wood' },
-              { metadata: 3, displayName: 'Jungle Wood' }
+              { metadata: 1, displayName: 'Spruce Wood' }
             ]
           }
         },
@@ -154,10 +208,8 @@ describe('Recipe', function () {
       const Recipe = recipeLoader(registry)
       const recipe = Recipe.find(5)[0]
 
-      // metadata 12 is not a valid item variation for log, so it should be null
       assert.strictEqual(recipe.inShape[0][0].metadata, null)
-      const logDelta = recipe.delta.find(d => d.id === 17)
-      assert.strictEqual(logDelta.metadata, null)
+      assert.strictEqual(recipe.delta.find(d => d.id === 17).metadata, null)
     })
 
     it('should preserve metadata when it matches a valid item variation', function () {
@@ -168,8 +220,7 @@ describe('Recipe', function () {
             name: 'wool',
             variations: [
               { metadata: 0, displayName: 'White Wool' },
-              { metadata: 1, displayName: 'Orange Wool' },
-              { metadata: 2, displayName: 'Magenta Wool' }
+              { metadata: 1, displayName: 'Orange Wool' }
             ]
           }
         },
@@ -183,8 +234,30 @@ describe('Recipe', function () {
       const Recipe = recipeLoader(registry)
       const recipe = Recipe.find(1)[0]
 
-      // metadata 1 is a valid variation for wool, so it should be preserved
       assert.strictEqual(recipe.inShape[0][0].metadata, 1)
+    })
+
+    it('should preserve metadata when it matches the base item metadata', function () {
+      const registry = {
+        items: {
+          1: {
+            id: 1,
+            name: 'bed',
+            metadata: 0,
+            variations: [{ id: 2, name: 'orange_bed', metadata: 1 }]
+          }
+        },
+        recipes: {
+          1: [{
+            result: { id: 1, count: 1 },
+            inShape: [[{ id: 1, metadata: 0 }]]
+          }]
+        }
+      }
+      const Recipe = recipeLoader(registry)
+      const recipe = Recipe.find(1)[0]
+
+      assert.strictEqual(recipe.inShape[0][0].metadata, 0)
     })
 
     it('should normalize metadata in ingredients too', function () {
@@ -227,7 +300,6 @@ describe('Recipe', function () {
       const Recipe = recipeLoader(registry)
       const recipe = Recipe.find(1)[0]
 
-      // No variations data, so metadata should be preserved as-is
       assert.strictEqual(recipe.inShape[0][0].metadata, 5)
     })
   })
