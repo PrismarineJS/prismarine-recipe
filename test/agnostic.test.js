@@ -61,6 +61,42 @@ describe('RecipeItem', function () {
 })
 
 describe('Recipe agnostic format', function () {
+  it('should isolate state between loaded registries', function () {
+    const JavaRecipe = recipeLoader({
+      recipes: {
+        1: [{
+          result: { id: 1, count: 1 },
+          ingredients: [2]
+        }]
+      }
+    })
+    const BedrockRecipe = recipeLoader({
+      type: 'bedrock',
+      items: {
+        3: { id: 3, name: 'cake' },
+        4: { id: 4, name: 'sugar' }
+      },
+      itemsByName: {
+        cake: { id: 3, name: 'cake' },
+        sugar: { id: 4, name: 'sugar' }
+      },
+      recipes: {
+        0: {
+          type: 'crafting_table_shapeless',
+          name: 'cake_recipe',
+          ingredients: [{ name: 'sugar', count: 1 }],
+          input: [[1]],
+          output: [{ name: 'cake', count: 1 }]
+        }
+      }
+    })
+
+    assert.strictEqual(JavaRecipe.find(1)[0].edition, 'java')
+    assert.strictEqual(BedrockRecipe.find('cake')[0].edition, 'bedrock')
+    assert.strictEqual(JavaRecipe.find(1)[0].result.id, 1)
+    assert.strictEqual(BedrockRecipe.find('cake')[0].result.id, 3)
+  })
+
   describe('computeDelta mutation', function () {
     it('should not mutate ingredient counts after recipe creation', function () {
       const registry = {
