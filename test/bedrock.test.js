@@ -118,4 +118,47 @@ describe('Bedrock recipes', function () {
     assert.strictEqual(Recipe.find(2).length, 1)
     assert.strictEqual(Recipe.find('black_bed').length, 1)
   })
+
+  it('should resolve legacy generic planks outputs to concrete Bedrock item names', function () {
+    const registry = {
+      type: 'bedrock',
+      items: {
+        1: { id: 1, name: 'planks', stackSize: 1 },
+        2: { id: 2, name: 'oak_planks' },
+        3: { id: 3, name: 'oak_log' },
+        4: { id: 4, name: 'log' }
+      },
+      itemsByName: {
+        planks: { id: 1, name: 'planks', stackSize: 1 },
+        oak_planks: { id: 2, name: 'oak_planks' },
+        oak_log: { id: 3, name: 'oak_log' },
+        log: { id: 4, name: 'log' }
+      },
+      recipes: {
+        0: {
+          type: 'crafting_table',
+          name: 'minecraft:oak_planks',
+          ingredients: [{ name: 'log', count: 1 }],
+          input: [[1]],
+          output: [{ name: 'planks', metadata: 0, count: 4 }]
+        }
+      }
+    }
+    const Recipe = recipeLoader(registry)
+
+    const byConcreteName = Recipe.find('oak_planks')
+    const byConcreteId = Recipe.find(2)
+    const byGenericName = Recipe.find('planks')
+
+    assert.strictEqual(byConcreteName.length, 1)
+    assert.strictEqual(byConcreteId.length, 1)
+    assert.strictEqual(byGenericName.length, 1)
+    assert.strictEqual(byConcreteName[0].result.id, 2)
+    assert.strictEqual(byConcreteName[0].result.name, 'oak_planks')
+    assert.strictEqual(byConcreteName[0].result.metadata, null)
+    assert.strictEqual(byConcreteName[0].inShape[0][0].id, 3)
+    assert.strictEqual(byConcreteName[0].inShape[0][0].name, 'oak_log')
+    assert.strictEqual(byConcreteName[0].delta.find(d => d.id === 3).count, -1)
+    assert.strictEqual(byConcreteName[0].delta.find(d => d.id === 2).count, 4)
+  })
 })
