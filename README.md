@@ -12,7 +12,14 @@ const Recipe=require("prismarine-recipe")("1.8").Recipe;
 console.log(JSON.stringify(Recipe.find(5)[0],null,2)); // recipes for wood
 ```
 
-Bedrock recipe data can also be queried by item name:
+You can also pass an existing `prismarine-registry` instance:
+
+```js
+const registry=require("prismarine-registry")("1.21.4");
+const Recipe=require("prismarine-recipe")(registry).Recipe;
+```
+
+Bedrock recipe data can be queried by item name or numeric id:
 
 ```js
 const Recipe=require("prismarine-recipe")("bedrock_1.21.80").Recipe;
@@ -28,8 +35,10 @@ console.log(JSON.stringify(Recipe.find("cake")[0],null,2));
 
 Returns a list of matching `Recipe` instances.
 
- * `itemType` - numerical id, or an item name for registries with named items
+ * `itemType` - numerical id, or an item name for Bedrock/named registries
  * `metadata` - metadata to match. `null` means match anything.
+
+The returned recipe uses the same normalized shape for Java and Bedrock. Existing Java fields are preserved, with additional fields for edition-aware code.
 
 #### recipe.result
 
@@ -48,15 +57,55 @@ Either `java` or `bedrock`. This is the discriminant for the version-agnostic re
 
 #### recipe.results
 
-All output items. This includes secondary outputs in Bedrock recipes, such as empty buckets returned by the cake recipe.
+All output items. For Java this is usually the same item as `recipe.result`. For Bedrock this includes secondary outputs, such as empty buckets returned by the cake recipe.
 
 #### recipe.type
 
-The recipe station/type when the registry exposes one, for example `crafting_table`, `stonecutter`, or `furnace`.
+The recipe station/type when the registry exposes one, for example `crafting_table`, `stonecutter`, or `furnace`. This value comes from registry data and should be treated as an open string.
 
 #### recipe.name
 
 The recipe identifier when the registry exposes one.
+
+#### recipe.inShape
+
+Looks like this:
+
+```js
+[
+  [recipeItem, recipeItem],
+  [recipeItem, recipeItem],
+  [recipeItem, recipeItem],
+]
+```
+
+#### recipe.outShape
+
+Looks the same as `inShape`. Only present when the registry exposes shaped output slots.
+
+#### recipe.ingredients
+
+List of shape-independent ingredients. Looks like this:
+
+```js
+[
+  recipeItem,
+  recipeItem
+]
+```
+
+### RecipeItem
+
+A recipe item has the following fields:
+
+```js
+{
+  id:45,
+  metadata:3,
+  count:1,
+  name:"bricks" // present when the registry item was name-based
+}
+```
 
 ## TypeScript
 
@@ -75,32 +124,7 @@ function handleRecipe (recipe: Recipe) {
 }
 ```
 
-#### recipe.inShape
-
-Looks like this:
-
-```js
-[
-  [recipeItem, recipeItem],
-  [recipeItem, recipeItem],
-  [recipeItem, recipeItem],
-]
-```
-
-#### recipe.outShape
-
-Looks the same as `inShape`. Only relevant for cake.
-
-#### recipe.ingredients
-
-List of shape-independent ingredients. Looks like this:
-
-```js
-[
-  recipeItem,
-  recipeItem
-]
-```
+The exported types reuse `minecraft-data` registry/item types where possible, and include Bedrock-specific recipe input/output types for the newer Bedrock recipe format.
 
 #### recipe.requiresTable
 

@@ -1,4 +1,4 @@
-import type MinecraftData = require('minecraft-data')
+import type MinecraftData = require('prismarine-registry')
 
 export type MinecraftDataRegistry = ReturnType<typeof MinecraftData>
 export type RegistryItem = MinecraftDataRegistry['items'][number]
